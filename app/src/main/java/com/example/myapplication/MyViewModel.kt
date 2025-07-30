@@ -15,4 +15,8 @@ class MyViewModel @Inject constructor(): ViewModel() {
 
     // Exposed as read-only
     val flag: StateFlow<Boolean> = _flag.asStateFlow()
+    fun change()
+    {
+        _flag.value = true
+    }
         }

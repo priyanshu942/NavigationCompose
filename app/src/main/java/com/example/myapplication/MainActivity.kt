@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHost
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,62 +33,77 @@ import kotlin.reflect.KClass
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    lateinit var startDestination : Any
-    lateinit var viewModel : MyViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
 
         setContent {
-             viewModel = hiltViewModel()
-            val flag by  viewModel.flag.collectAsState()
+
             MyApplicationTheme {
-                Log.d("HereIam", "ValueFlag${flag}")
-
-                    startDestination = if (flag) {
-                        Log.d("HereIam", "ValueFlag${true}")
-                        Screen.ScreenA
-                    } else {
-                        Log.d("HereIam", "ValueFlag${false}")
-                        Screen.ScreenB
-                    }
-
-                    IdhaJaa(startDestination)
+                First()
                 }
 
-            Log.d("HereIam","BeforeCallingNavHost")
         }
     }
 }
 
 @Composable
-fun Greeting1(name: String, modifier: Modifier = Modifier) {
+fun Greeting1(name: String, modifier: Modifier = Modifier, viewModel: MyViewModel) {
     Log.d("HereIam","Greeting")
+    Log.d("HereIamGreeting1","ScreenA ${viewModel}")
+
+
     Column {
         Text(
             text = "Hello $name!",
             modifier = modifier
         )
 
+//        Button(onClick = {
+//            viewModel.change()
+//        }) {
+//            Text("Click me to next")
+//        }
+
+
     }
 }
 
 @Composable
-fun IdhaJaa(startDestination:Any)
+fun First( viewModel: MyViewModel = hiltViewModel())
 {
+    Log.d("HereIam","InsideFirst")
+    Text("HereIamFirst")
+    val see by viewModel.flag.collectAsState()
+    val startDestination = if(see)
+    {
+        Screen.ScreenA
+    }
+    else{
+        Screen.ScreenB
+    }
+    IdhaJaa(startDestination, viewModel)
+}
 
+@Composable
+fun IdhaJaa(startDestination:Any, viewModel: MyViewModel)
+{
     NavHost(navController = rememberNavController(), startDestination = startDestination ) {
         composable<Screen.ScreenA>{
             Log.d("HereIam","InsideGreeting1")
             Greeting1(
                 name = "Android",
-                modifier = Modifier.padding(50.dp)
-            )
+                modifier = Modifier.padding(50.dp),
+                viewModel = viewModel
+                )
         }
         composable<Screen.ScreenB> {
             Log.d("HereIam","InsideGreeting")
             Greeting("Hello World",
-                modifier = Modifier.padding(50.dp))
+                modifier = Modifier.padding(50.dp),
+                vm=viewModel
+            )
         }
     }
 }
